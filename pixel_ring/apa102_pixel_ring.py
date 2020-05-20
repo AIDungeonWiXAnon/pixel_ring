@@ -1,26 +1,15 @@
-
-import time
 import threading
-try:
-    import queue as Queue
-except ImportError:
-    import Queue as Queue
-
+import queue as Queue
 from .apa102 import APA102
-from .pattern import Echo, GoogleHome
+from .pattern import Custom, GoogleHome
 
 
 class PixelRing(object):
     PIXELS_N = 12
 
-    def __init__(self, pattern='google'):
-        if pattern == 'echo':
-            self.pattern = Echo(show=self.show)
-        else:
-            self.pattern = GoogleHome(show=self.show)
-
+    def __init__(self):
+        self.pattern = Custom([0,0,0], [0,0,0], show=self.show)
         self.dev = APA102(num_led=self.PIXELS_N)
-
         self.queue = Queue.Queue()
         self.thread = threading.Thread(target=self._run)
         self.thread.daemon = True
@@ -34,11 +23,11 @@ class PixelRing(object):
         if brightness > 0:
             self.dev.global_brightness = int(0b11111 * brightness / 100)
 
-    def change_pattern(self, pattern):
-        if pattern == 'echo':
-            self.pattern = Echo(show=self.show)
-        else:
+    def set_pattern(self, pattern, primary_color, secondary_color):
+        if pattern == 'google':
             self.pattern = GoogleHome(show=self.show)
+        else:
+            self.pattern = Custom(primary_color, secondary_color, show=self.show)
 
     def wakeup(self, direction=0):
         def f():
@@ -51,7 +40,6 @@ class PixelRing(object):
 
     def think(self):
         self.put(self.pattern.think)
-
     wait = think
 
     def speak(self):
@@ -71,21 +59,19 @@ class PixelRing(object):
             func()
 
     def show(self, data):
-        for i in range(self.PIXELS_N):
-            self.dev.set_pixel(i, int(data[4*i + 1]), int(data[4*i + 2]), int(data[4*i + 3]))
-
-        self.dev.show()
-
-    def set_color(self, rgb=None, r=0, g=0, b=0):
-        if rgb:
-            r, g, b = (rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF
-        for i in range(self.PIXELS_N):
-            self.dev.set_pixel(i, r, g, b)
+        for pixel in range(self.PIXELS_N):
+            self.dev.set_pixel(
+                pixel,
+                int(data[3 * pixel + 0]),
+                int(data[3 * pixel + 1]),
+                int(data[3 * pixel + 2]))
 
         self.dev.show()
 
 
 if __name__ == '__main__':
+    import time
+
     pixel_ring = PixelRing()
     while True:
         try:
