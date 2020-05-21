@@ -2,20 +2,21 @@ Pixel Ring
 ==========
 
 
-The library is for pixel ring based on APA102, ReSpeaker series pixel ring. Now being rewritten to be smipler to use with Mycroft.
+This library is for ReSpeaker's pixel ring based on APA102 LEDs. This fork is a rewrite to be smipler to use in general, with a specific focus on easing integration with Mycroft.
 
 ## Hardware
-+ ReSpeaker 4 Mic Array or ReSpeaker V2
++ ReSpeaker 4 Mic Array
++ ReSpeaker 6-Mic Circular Array
 + ReSpeaker V2
 + ReSpeaker USB 6+1 Mic Array
 + ReSpeaker USB 4 Mic Array
 
 ## Get started
 ```
-git clone --depth 1 https://github.com/respeaker/pixel_ring.git
+git clone --depth 1 https://github.com/AIDungeonWiXAnon/pixel_ring_simple
 cd pixel_ring
 pip install -U -e .
-python examples/respeaker_4mic_array.py
+# Read the __init__.py file for example code!
 ```
 
 
