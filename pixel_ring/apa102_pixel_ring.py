@@ -35,7 +35,7 @@ class PixelRing(object):
         brightness = min(max(brightness, 1), 100)   # Clamp brightness from 1-100%
         self.dev.global_brightness = int(0b11111 * (brightness / 100))
 
-    def set_pattern(self, pattern, primary_color, secondary_color):
+    def change_pattern(self, pattern, primary_color=[0, 0, 255], secondary_color=[255, 255, 255]):
         """Sets color patterns for all LED functions.
 
         Args:
