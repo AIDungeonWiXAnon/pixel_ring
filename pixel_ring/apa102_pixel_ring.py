@@ -1,3 +1,4 @@
+"""Purpose: Coordinate user function calls between APA102, PixelRing, and pattern.py objects"""
 import threading
 import queue as Queue
 from .apa102 import APA102
@@ -52,31 +53,46 @@ class PixelRing(object):
         
         Args:
             direction: DOA in degrees for DOA LED's positioning. Defaults to LED 1.
-        """
-        
-        def f():
-            """Passes self.pattern.wakeup() into f().
+        """    
+        def queue_wrapper():
+            """Passes self.pattern.wakeup() into queue_wrapper().
 
             This prevents a NoneType runtime error from occurring where Queue sees
             self.pattern.wakeup() as a function instead of as an object.
             """
             self.pattern.wakeup(direction)
 
-        self.put(f)
+        self.put(queue_wrapper)
 
     def listen(self):
         """Activates pattern's listen function."""
         self.put(self.pattern.listen)
 
-    def think(self):
+    def think(self, speed=0.25):
         """Activates pattern's think function."""
-        self.put(self.pattern.think)
+        def queue_wrapper():
+            """Passes self.pattern.think() into queue_wrapper().
+
+            This prevents a NoneType runtime error from occurring where Queue sees
+            self.pattern.think() as a function instead of as an object.
+            """
+            self.pattern.think(speed)
+
+        self.put(queue_wrapper)
 
     wait = think    # Assignment of pixel_ring.wait() as pixel_ring.think()
 
-    def speak(self):
+    def speak(self, speed=0.5):
         """Activates pattern's speak function."""
-        self.put(self.pattern.speak)
+        def queue_wrapper():
+            """Passes self.pattern.speak() into queue_wrapper().
+
+            This prevents a NoneType runtime error from occurring where Queue sees
+            self.pattern.speak() as a function instead of as an object.
+            """
+            self.pattern.speak(speed)
+
+        self.put(queue_wrapper)
 
     def off(self):
         """Queues LEDs to be shut off.

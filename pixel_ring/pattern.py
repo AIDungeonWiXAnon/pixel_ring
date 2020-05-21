@@ -1,7 +1,4 @@
-"""
-Purpose: Provide template classes with preset LED patterns for use with Respeaker LED rings.
-
-"""
+"""Purpose: Provide template classes with preset LED patterns for use with Respeaker LED rings."""
 
 import time
 
@@ -50,30 +47,31 @@ class Custom(object):
 
         self.show(pixels)
 
-    def think(self):
+    def think(self, speed=0.25):
         """Rotates an alteration of the main color and second color on all LEDs.
 
-        Default speed rotates every 0.25 seconds.
+        Args:
+            speed: speed of rotation in seconds.
         """
         pixels = (self.second_color + self.main_color) * self.pixels_count
-        # TODO: Make speed optionally changeable
         while not self.stop:
             self.show(pixels)
-            time.sleep(0.25)
+            time.sleep(speed)
             pixels = pixels[-3:] + pixels[:-3]
 
-    def speak(self):
+    def speak(self, speed=0.5):
         """Cycles all LEDs between the main and second colors.
         
-        Default speed cycles every 0.5 seconds.
+        Args:
+            speed: speed of cycling in seconds.
         """
         pixels = cycle([
             self.main_color * self.pixels_count,
             self.second_color * self.pixels_count])
-        # TODO: Make speed optionally changeable
         while not self.stop:
             self.show(next(pixels))
-            time.sleep(0.5)
+            time.sleep(speed)
+
     # TODO: Add function to change colors    
 
     def off(self):
@@ -141,13 +139,13 @@ class GoogleHome(object):
             self.show([(v * i / 24) for v in pixels])
             time.sleep(0.01)
 
-    def think(self):
+    def think(self, speed=0.25):
         pixels = self.pixels
 
         while not self.stop:
             pixels = pixels[-3:] + pixels[:-3]
             self.show(pixels)
-            time.sleep(0.25)
+            time.sleep(speed)
 
         t = 0.1
         for i in range(0, 5):
@@ -158,20 +156,19 @@ class GoogleHome(object):
 
         self.pixels = pixels
 
-    def speak(self):
+    def speak(self, speed=0.5):
         pixels = self.pixels
         step = 1
         brightness = 5
         while not self.stop:
             self.show([(v * brightness / 24) for v in pixels])
-            time.sleep(0.02)
 
             if brightness <= 5:
                 step = 1
-                time.sleep(0.48)
+                time.sleep(speed)
             elif brightness >= 24:
                 step = -1
-                time.sleep(0.48)
+                time.sleep(speed)
 
             brightness += step
 
