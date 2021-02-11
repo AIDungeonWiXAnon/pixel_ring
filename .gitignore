@@ -88,5 +88,8 @@ ENV/
 # Rope project settings
 .ropeproject
 
-#Visual Studio files
+# Visual Studio files
 .vs
+
+# Travis files
+.travis.yml

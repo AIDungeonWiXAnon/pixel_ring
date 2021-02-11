@@ -1,6 +1,8 @@
 """Purpose: Coordinate user function calls between APA102, PixelRing, and pattern.py objects"""
 import threading
 import queue as Queue
+import collections
+from .doa import get_direction
 from .apa102 import APA102
 from .pattern import Custom, GoogleHome
 
@@ -19,9 +21,12 @@ class PixelRing(object):
         self.pattern = Custom([0,0,0], [0,0,0], show=self.show)
         self.dev = APA102(num_led=self.PIXELS_N)
         self.queue = Queue.Queue()
-        self.thread = threading.Thread(target=self._run)
-        self.thread.daemon = True
-        self.thread.start()
+        self.main_thread = threading.Thread(target=self._run)
+        self.main_thread.daemon = True
+        self.main_thread.start()
+        self.mic_thread = threading.Thread(target=self.doa_listen)
+        self.mic_thread.daemon = True
+        self.mic_thread.start()
         self.off()
 
     def set_brightness(self, brightness):
@@ -48,12 +53,9 @@ class PixelRing(object):
         else:
             self.pattern = Custom(primary_color, secondary_color, show=self.show)
 
-    def wakeup(self, direction=0):
-        """Activates pattern's wakeup function.
-        
-        Args:
-            direction: DOA in degrees for DOA LED's positioning. Defaults to LED 1.
-        """    
+    def wakeup(self):
+        """Activates pattern's wakeup function."""    
+        direction = get_direction();
         def queue_wrapper():
             """Passes self.pattern.wakeup() into queue_wrapper().
 
@@ -130,6 +132,9 @@ class PixelRing(object):
                 int(data[3 * pixel + 2]))
 
         self.dev.show()
+
+    def doa_listen():
+
 
 
 if __name__ == '__main__':
